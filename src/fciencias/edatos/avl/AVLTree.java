@@ -1,5 +1,9 @@
 package fciencias.edatos.avl;
 
+import java.util.Scanner;
+import javax.swing.plaf.synth.SynthPasswordFieldUI;
+import javax.swing.plaf.synth.SynthToggleButtonUI;
+
 /**
 * Implementación de árbol AVL
 * @author Itzel Morales García
@@ -215,6 +219,18 @@ public class AVLTree<K extends Comparable, T> implements TDABinarySearchTree<K, 
 		return null;
 	}
 
+	private AVLNode findMax(AVLNode actual){
+		if(actual == null)
+			return null;
+		AVLNode iterador = actual;
+
+		while(iterador.derecho != null){
+			iterador = actual.derecho;
+		}
+
+		return iterador;
+	}
+
 	@Override
 	public void preorden(){
 		preorden(raiz);
@@ -230,29 +246,112 @@ public class AVLTree<K extends Comparable, T> implements TDABinarySearchTree<K, 
 	}
 
 	@Override
-	public void inorden(){}
+	public void inorden(){
+		inorden(raiz);
+	}
+
+	private void inorden(AVLNode actual){
+		if(actual==null)
+		return;
+
+		inorden(actual.izquierdo);
+		System.out.println(actual.elemento);
+		inorden(actual.derecho);
+	}
 
 	@Override
-	public void postorden(){}
+	public void postorden(){
+		postorden(raiz);
+	}
+
+	private void postorden(AVLNode actual){
+		if(actual== null)
+		return;
+
+		postorden(actual.izquierdo);
+		postorden(actual.derecho);
+		System.out.println(actual.elemento);
+	}
 
 	public static void main(String[] args) {
-		AVLTree<Integer, Integer> arbol = new AVLTree<>();
+		Scanner sc = new Scanner(System.in);
+		AVLTree<Integer, String> arbol = new AVLTree<>();
+		do{
+			System.out.println("[1]Obtener la altura\n"+
+			""
+			"[1] Inserta un nodo\n"+
+			"[2] Elimina\n"+
+			"[3] Recupera objeto\n"+
+			"[4] FindMin\n"+
+			"[5] FindMax\n"+
+			"[6] Preorden\n"+
+			"[7] Inorden\n"+
+			"[8] Postorden\n"+
+			"[10] Salir\n"+
+			"Elige una opción: ");
 
-		arbol.insert(9, 9);
-		arbol.insert(12, 12);
-		arbol.insert(3, 3);
-		arbol.insert(4, 4);
-		arbol.insert(2, 2);
-		arbol.insert(5, 5);
-		arbol.insert(1, 1);
-		arbol.insert(11, 11);
-		arbol.insert(14, 14);
-		arbol.insert(15, 15);
+			int opcion = sc.nextInt();
+			switch(opcion){
+				/**Inserta un elemento */
+				case 1:
+					System.out.println("Digite la clave a agregar");
+					int clave = sc.nextInt();
+					sc.nextLine();
+					
+					System.out.println("Digite el elemento a agregar");
+					String e = sc.nextLine();
+					arbol.insert(e, clave);
+					break;
+				/**Elimina un elemento */
+				case 2:
+					System.out.println("Digite la clave del elemento a eliminar");
+					int aeliminar = sc.nextInt();
+					sc.nextLine();
+					System.out.println("Se elimino el elemento : "+arbol.delete(aeliminar));
+					break;
+				/** Recupera elemento */
+				case 3:
+					System.out.println("Digite la clave del elemento a buscar");
+					int dat = sc.nextInt();
+					sc.nextLine();
+					System.out.println(arbol.retrieve(dat));
+					break;
+				/** FindMin */
+				case 4:
+					System.out.println(arbol.findMin());
+					break;
+				/** FindMax */
+				case 5:
+					System.out.println(arbol.findMax());
+					break;
+				/** Preorden */
+				case 6:
+					System.out.println("\n Recorrido en Preorden");
+					arbol.preorden();
+					System.out.println("\n");
+					break;
+				/** Inorden */
+				case 7:
+				System.out.println("\n Recorrido en Inorden");
+					arbol.inorden();
+					System.out.println("\n");
+					break;
+				/** Postorden */
+				case 8:
+				System.out.println("\n Recorrido en Postorden");
+					arbol.postorden();
+					System.out.println("\n");
+					break;
+				case 9:
+					System.out.println(arbol.isEmpty());
+					break;
+				case 10:
+					return;
+				default:
+					System.out.println("Opción inválida");
+					
+			}
+		}while(true);
 
-		arbol.delete(9);
-		arbol.delete(12);
-		arbol.delete(5);
-
-		arbol.preorden();
 	}
 }
