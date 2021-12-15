@@ -21,6 +21,9 @@ public class AVLTree<K extends Comparable, T> implements TDABinarySearchTree<K, 
 		/** Altura del nodo. */
 		public int altura;
 
+		/**Factor de equilibrio del nodo. */
+		public int fe;
+
 		/** Hijo izquierdo. */
 		public AVLNode izquierdo;
 
@@ -36,6 +39,9 @@ public class AVLTree<K extends Comparable, T> implements TDABinarySearchTree<K, 
 		/** Clave del nodo. */
 		public K clave;
 
+        /** Raíz del árbol */
+		private AVLTree<K, T>.AVLNode raiz;
+
 		/**
 		 * Crea un nuevo nodo AVL
 		 * @param element el elemento a almacenar.
@@ -47,6 +53,7 @@ public class AVLTree<K extends Comparable, T> implements TDABinarySearchTree<K, 
 			clave = key;
 			this.padre = padre;
 			altura = this.getAltura();
+			raiz = this.raiz;
 		}
 
 		/**
@@ -74,6 +81,7 @@ public class AVLTree<K extends Comparable, T> implements TDABinarySearchTree<K, 
 	}
 
 	private AVLNode raiz;
+	raiz = null;
 
 	@Override
 	public T retrieve(K k){
@@ -104,6 +112,25 @@ public class AVLTree<K extends Comparable, T> implements TDABinarySearchTree<K, 
 			return retrieve(k, actual.derecho);
 		}
 	}
+
+	/**Obetener el Factor de equilibrio
+	 * @param AVLNode el nodo del cuál se va a obtener el factor de equilibrio
+	 */
+	public int obtenerFE(AVLNode eq){
+		if (eq == null){
+			return -1;
+		}else{
+			return eq.fe;
+		}
+	}
+
+		//Rotación Simple a la izquierda de los nodos del árbol
+		public AVLNode rotacionIzquierda(AVLNode c){
+			AVLNode aux = c.izquierdo;
+			c.izquierdo = aux.derecho;
+			aux.derecho = c;
+			c.fe;
+		}
 
 	@Override
 	public void insert(T e, K k){
