@@ -81,7 +81,6 @@ public class AVLTree<K extends Comparable, T> implements TDABinarySearchTree<K, 
 	}
 
 	private AVLNode raiz;
-	raiz = null;
 
 	@Override
 	public T retrieve(K k){
@@ -124,12 +123,47 @@ public class AVLTree<K extends Comparable, T> implements TDABinarySearchTree<K, 
 		}
 	}
 
-		//Rotación Simple a la izquierda de los nodos del árbol
-		public AVLNode rotacionIzquierda(AVLNode c){
-			AVLNode aux = c.izquierdo;
-			c.izquierdo = aux.derecho;
-			aux.derecho = c;
-			c.fe;
+	/** Rotación simple a la izquierda
+	 * @param AVLNode, el nodo a partir del cual se va a hacer la rotación
+	 */
+		public AVLNode rotacionIzquierda(AVLNode z){
+			AVLNode aux = z.izquierdo;
+			z.izquierdo = aux.derecho;
+			aux.derecho = z;
+			z.fe = Math.max(obtenerFE(z.izquierdo), obtenerFE(z.derecho))+1;
+			aux.fe = Math.max(obtenerFE(aux.izquierdo), obtenerFE(aux.derecho))+1;
+			return aux;
+		}
+
+		/** Rotación simple a la derecha 
+		 * @param AVLNode nodo a partir dle cual se va a hacer la rotación
+		*/
+		public AVLNode rotacionDerecha(AVLNode d){
+			AVLNode aux = d.derecho;
+			d.derecho = aux.izquierdo;
+			d.fe = Math.max(obtenerFE(d.izquierdo), obtenerFE(d.derecho)+1);
+			aux.fe = Math.max(obtenerFE(aux.izquierdo), obtenerFE(aux.derecho))+1;
+			return aux;
+		}
+
+		/**Rotación doble a la izquierda
+		 * @param AVLNode nodo a partir dle cual se va a hacer la rotación doble
+		 */
+		public AVLNode rotacionDobleIzq(AVLNode z){
+			AVLNode temp;
+			z.izquierdo = rotacionDerecha(z.izquierdo);
+			temp = rotacionIzquierda(z);
+			return temp;
+		}
+
+		/** Rotación doble a la izquierda
+		 * @param AVLNode nodo a partir dle cual se va a hacer la rotación doble
+		 */
+		public AVLNode rotacionDobleDer(AVLNode d){
+			AVLNode temp;
+			d.derecho = rotacionIzquierda(d.derecho);
+			temp = rotacionDerecha(d);
+			return temp;
 		}
 
 	@Override
@@ -305,7 +339,6 @@ public class AVLTree<K extends Comparable, T> implements TDABinarySearchTree<K, 
 		AVLTree<Integer, String> arbol = new AVLTree<>();
 		do{
 			System.out.println("[1]Obtener la altura\n"+
-			""
 			"[1] Inserta un nodo\n"+
 			"[2] Elimina\n"+
 			"[3] Recupera objeto\n"+
@@ -368,9 +401,6 @@ public class AVLTree<K extends Comparable, T> implements TDABinarySearchTree<K, 
 				System.out.println("\n Recorrido en Postorden");
 					arbol.postorden();
 					System.out.println("\n");
-					break;
-				case 9:
-					System.out.println(arbol.isEmpty());
 					break;
 				case 10:
 					return;
