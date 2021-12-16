@@ -126,11 +126,11 @@ public class AVLTree<K extends Comparable, T> implements TDABinarySearchTree<K, 
 	/** Rotación simple a la izquierda
 	 * @param AVLNode, el nodo a partir del cual se va a hacer la rotación
 	 */
-		public AVLNode rotacionIzquierda(AVLNode z){
-			AVLNode aux = z.izquierdo;
-			z.izquierdo = aux.derecho;
-			aux.derecho = z;
-			z.fe = Math.max(obtenerFE(z.izquierdo), obtenerFE(z.derecho))+1;
+		public AVLNode rotacionIzquierda(AVLNode c){
+			AVLNode aux = c.izquierdo;
+			c.izquierdo = aux.derecho;
+			aux.derecho = c;
+			c.fe = Math.max(obtenerFE(c.izquierdo), obtenerFE(c.derecho))+1;
 			aux.fe = Math.max(obtenerFE(aux.izquierdo), obtenerFE(aux.derecho))+1;
 			return aux;
 		}
@@ -138,10 +138,10 @@ public class AVLTree<K extends Comparable, T> implements TDABinarySearchTree<K, 
 		/** Rotación simple a la derecha 
 		 * @param AVLNode nodo a partir dle cual se va a hacer la rotación
 		*/
-		public AVLNode rotacionDerecha(AVLNode d){
-			AVLNode aux = d.derecho;
-			d.derecho = aux.izquierdo;
-			d.fe = Math.max(obtenerFE(d.izquierdo), obtenerFE(d.derecho)+1);
+		public AVLNode rotacionDerecha(AVLNode c){
+			AVLNode aux = c.derecho;
+			c.derecho = aux.izquierdo;
+			c.fe = Math.max(obtenerFE(c.izquierdo), obtenerFE(c.derecho)+1);
 			aux.fe = Math.max(obtenerFE(aux.izquierdo), obtenerFE(aux.derecho))+1;
 			return aux;
 		}
@@ -149,20 +149,20 @@ public class AVLTree<K extends Comparable, T> implements TDABinarySearchTree<K, 
 		/**Rotación doble a la izquierda
 		 * @param AVLNode nodo a partir dle cual se va a hacer la rotación doble
 		 */
-		public AVLNode rotacionDobleIzq(AVLNode z){
+		public AVLNode rotacionDobleIzq(AVLNode c){
 			AVLNode temp;
-			z.izquierdo = rotacionDerecha(z.izquierdo);
-			temp = rotacionIzquierda(z);
+			c.izquierdo = rotacionDerecha(c.izquierdo);
+			temp = rotacionIzquierda(c);
 			return temp;
 		}
 
 		/** Rotación doble a la izquierda
 		 * @param AVLNode nodo a partir dle cual se va a hacer la rotación doble
 		 */
-		public AVLNode rotacionDobleDer(AVLNode d){
+		public AVLNode rotacionDobleDer(AVLNode c){
 			AVLNode temp;
-			d.derecho = rotacionIzquierda(d.derecho);
-			temp = rotacionDerecha(d);
+			c.derecho = rotacionIzquierda(c.derecho);
+			temp = rotacionDerecha(c);
 			return temp;
 		}
 
@@ -185,20 +185,36 @@ public class AVLTree<K extends Comparable, T> implements TDABinarySearchTree<K, 
 	 * @param actual el nodo actual
 	 * @return 
 	 */
-	public AVLNode insert(T e, K k, AVLNode actual){
+	public AVLNode insert(T e, K k, AVLNode actual, AVLNode nuevo){
+		AVLNode nuevoPadre = actual;
 		if(k.compareTo(actual.clave)<0){ // Verificamos sobre el izquierdo
 			if(actual.izquierdo == null){ // Insertamos en esa posición
 				actual.izquierdo = new AVLNode(e, k, actual);
 				return actual.izquierdo;
 			} else { // Recursión sobre el izquierdo
 				return insert(e, k, actual.izquierdo);
+			} //iniciamos rotación por si hay desbalanceo
+		if ((obtenerFE(actual.izquierdo) - obtenerFE(actual.derecho) == 2)){
+			if(nuevo.altura<actual.izquierdo.altura){
+				nuevoPadre = rotacionIzquierda(actual);
+			}else{
+				nuevoPadre = rotacionDobleIzq(actual);
 			}
-		} else{ // Verificamos sobre la derecha
+		}
+		
+		}else{ // Verificamos sobre la derecha
 			if(actual.derecho == null){ // Insertamos en esa posición
 				actual.derecho = new AVLNode(e, k, actual);
 				return actual.derecho;
 			} else { // Recursión sobre el derecho
 				return insert(e, k, actual.derecho);
+			} //iniciamos rotación por si hay desbalanceo
+			if ((obtenerFE(actual.derecho) - obtenerFE(actual.izquierdo)==2)){
+				if(nuevo.altura>actual.derecho.altura){
+					nuevoPadre=rotacionDerecha(actual);
+				}else{
+					nuevoPadre = rotacionDobleDer(actual);
+				}
 			}
 		}
 	}
