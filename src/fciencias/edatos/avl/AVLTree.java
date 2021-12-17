@@ -217,6 +217,15 @@ public class AVLTree<K extends Comparable, T> implements TDABinarySearchTree<K, 
 				}
 			}
 		}
+		//actualizamos la altura
+		if((actual.izquierdo==null) && (actual.derecho!=null)){
+			actual.fe=actual.derecho.fe+1;
+		}else if((actual.derecho==null) && (actual.izquierdo!=null)){
+			actual.fe=actual.izquierdo.fe+1;
+		}else{
+			actual.fe=Math.max(obtenerFE(actual.izquierdo), obtenerFE(actual.derecho))+1;
+		}
+		return nuevoPadre;
 	}
 
 	@Override
@@ -363,7 +372,7 @@ public class AVLTree<K extends Comparable, T> implements TDABinarySearchTree<K, 
 			"[6] Preorden\n"+
 			"[7] Inorden\n"+
 			"[8] Postorden\n"+
-			"[10] Salir\n"+
+			"[9] Salir\n"+
 			"Elige una opción: ");
 
 			int opcion = sc.nextInt();
@@ -418,7 +427,7 @@ public class AVLTree<K extends Comparable, T> implements TDABinarySearchTree<K, 
 					arbol.postorden();
 					System.out.println("\n");
 					break;
-				case 10:
+				case 9:
 					return;
 				default:
 					System.out.println("Opción inválida");
