@@ -80,6 +80,13 @@ public class AVLTree<K extends Comparable, T> implements TDABinarySearchTree<K, 
 		}
 	}
 
+		/**
+		 * altura del nodo
+		 */
+		private int altura(AVLNode a){
+			return a == null ? -1 : a.altura;
+		}
+
 	private AVLNode raiz;
 
 	@Override
@@ -173,9 +180,6 @@ public class AVLTree<K extends Comparable, T> implements TDABinarySearchTree<K, 
 			return;
 		}
 		AVLNode v = insert(e, k, raiz);
-
-		// Rebalancear a partir de v hasta raiz
-		//rebalancea(v);
 	}
 
 	/**
@@ -185,22 +189,20 @@ public class AVLTree<K extends Comparable, T> implements TDABinarySearchTree<K, 
 	 * @param actual el nodo actual
 	 * @return 
 	 */
-	public AVLNode insert(T e, K k, AVLNode actual, AVLNode nuevo){
-		AVLNode nuevoPadre = actual;
+	public AVLNode insert(T e, K k, AVLNode actual){
 		if(k.compareTo(actual.clave)<0){ // Verificamos sobre el izquierdo
 			if(actual.izquierdo == null){ // Insertamos en esa posición
 				actual.izquierdo = new AVLNode(e, k, actual);
 				return actual.izquierdo;
 			} else { // Recursión sobre el izquierdo
 				return insert(e, k, actual.izquierdo);
-			} //iniciamos rotación por si hay desbalanceo
-		if ((obtenerFE(actual.izquierdo) - obtenerFE(actual.derecho) == 2)){
-			if(nuevo.altura<actual.izquierdo.altura){
-				nuevoPadre = rotacionIzquierda(actual);
-			}else{
-				nuevoPadre = rotacionDobleIzq(actual);
 			}
-		}
+			if(altura(actual.izquierdo)- altura(actual.derecho) == 2)
+				if(e.compareTo(actual.izquierdo.clave)<0){
+					actual = rotacionIzquierda(actual);
+				}else{
+					actual = rotacionDobleIzq(actual);
+				}
 		
 		}else{ // Verificamos sobre la derecha
 			if(actual.derecho == null){ // Insertamos en esa posición
@@ -208,24 +210,21 @@ public class AVLTree<K extends Comparable, T> implements TDABinarySearchTree<K, 
 				return actual.derecho;
 			} else { // Recursión sobre el derecho
 				return insert(e, k, actual.derecho);
-			} //iniciamos rotación por si hay desbalanceo
-			if ((obtenerFE(actual.derecho) - obtenerFE(actual.izquierdo)==2)){
-				if(nuevo.altura>actual.derecho.altura){
-					nuevoPadre=rotacionDerecha(actual);
-				}else{
-					nuevoPadre = rotacionDobleDer(actual);
-				}
+			}
+			if(altura(actual.izquierdo)- altura(actual.derecho) == 2)
+			if(e.compareTo(actual.izquierdo.clave)<0){
+				actual = rotacionDerecha(actual);
+			}else{
+				actual = rotacionDobleDer(actual);
 			}
 		}
-		//actualizamos la altura
-		if((actual.izquierdo==null) && (actual.derecho!=null)){
-			actual.fe=actual.derecho.fe+1;
-		}else if((actual.derecho==null) && (actual.izquierdo!=null)){
-			actual.fe=actual.izquierdo.fe+1;
-		}else{
-			actual.fe=Math.max(obtenerFE(actual.izquierdo), obtenerFE(actual.derecho))+1;
-		}
-		return nuevoPadre;
+		else
+		actual.altura = max(altura(actual.izquierdo), altura(actual.derecho)) +1;
+		return actual;
+	}
+
+	private static int max(int lhs, int rhs){
+		return lhs > rhs ? lhs : rhs;
 	}
 
 	@Override
@@ -241,9 +240,6 @@ public class AVLTree<K extends Comparable, T> implements TDABinarySearchTree<K, 
 
 		// Eliminar con auxiliar
 		AVLNode w = delete(v);
-
-		// Rebalancear
-		//rebalancea(w);
 
 		return eliminado;
 	}
