@@ -1,5 +1,9 @@
 package fciencias.edatos.avl;
 
+import java.util.Scanner;
+import javax.swing.plaf.synth.SynthPasswordFieldUI;
+import javax.swing.plaf.synth.SynthToggleButtonUI;
+
 /**
 * Implementación de árbol AVL
 * @author Itzel Morales García
@@ -17,6 +21,9 @@ public class AVLTree<K extends Comparable, T> implements TDABinarySearchTree<K, 
 		/** Altura del nodo. */
 		public int altura;
 
+		/**Factor de equilibrio del nodo. */
+		public int fe;
+
 		/** Hijo izquierdo. */
 		public AVLNode izquierdo;
 
@@ -32,6 +39,9 @@ public class AVLTree<K extends Comparable, T> implements TDABinarySearchTree<K, 
 		/** Clave del nodo. */
 		public K clave;
 
+        /** Raíz del árbol */
+		private AVLTree<K, T>.AVLNode raiz;
+
 		/**
 		 * Crea un nuevo nodo AVL
 		 * @param element el elemento a almacenar.
@@ -43,6 +53,7 @@ public class AVLTree<K extends Comparable, T> implements TDABinarySearchTree<K, 
 			clave = key;
 			this.padre = padre;
 			altura = this.getAltura();
+			raiz = this.raiz;
 		}
 
 		/**
@@ -68,6 +79,13 @@ public class AVLTree<K extends Comparable, T> implements TDABinarySearchTree<K, 
 			this.altura = this.getAltura();
 		}
 	}
+
+		/**
+		 * altura del nodo
+		 */
+		private int altura(AVLNode a){
+			return a == null ? -1 : a.altura;
+		}
 
 	private AVLNode raiz;
 
@@ -101,16 +119,86 @@ public class AVLTree<K extends Comparable, T> implements TDABinarySearchTree<K, 
 		}
 	}
 
+	/**Obetener el Factor de equilibrio
+	 * @param AVLNode el nodo del cuál se va a obtener el factor de equilibrio
+	 */
+	public int obtenerFE(AVLNode eq){
+		if (eq == null){
+			return -1;
+		}else{
+			return eq.fe;
+		}
+	}
+
+	/** Rotación simple a la izquierda
+	 * @param AVLNode, el nodo a partir del cual se va a hacer la rotación
+	 */
+		public AVLNode rotacionIzquierda(AVLNode c){
+			AVLNode aux = c.izquierdo;
+			c.izquierdo = aux.derecho;
+			aux.derecho = c;
+			c.fe = Math.max(obtenerFE(c.izquierdo), obtenerFE(c.derecho))+1;
+			aux.fe = Math.max(obtenerFE(aux.izquierdo), obtenerFE(aux.derecho))+1;
+			return aux;
+		}
+
+		/** Rotación simple a la derecha 
+		 * @param AVLNode nodo a partir dle cual se va a hacer la rotación
+		*/
+		public AVLNode rotacionDerecha(AVLNode c){
+			AVLNode aux = c.derecho;
+			c.derecho = aux.izquierdo;
+			c.fe = Math.max(obtenerFE(c.izquierdo), obtenerFE(c.derecho)+1);
+			aux.fe = Math.max(obtenerFE(aux.izquierdo), obtenerFE(aux.derecho))+1;
+			return aux;
+		}
+
+		/**Rotación doble a la izquierda
+		 * @param AVLNode nodo a partir dle cual se va a hacer la rotación doble
+		 */
+		public AVLNode rotacionDobleIzq(AVLNode c){
+			AVLNode temp;
+			c.izquierdo = rotacionDerecha(c.izquierdo);
+			temp = rotacionIzquierda(c);
+			return temp;
+		}
+
+		/** Rotación doble a la izquierda
+		 * @param AVLNode nodo a partir dle cual se va a hacer la rotación doble
+		 */
+		public AVLNode rotacionDobleDer(AVLNode c){
+			AVLNode temp;
+			c.derecho = rotacionIzquierda(c.derecho);
+			temp = rotacionDerecha(c);
+			return temp;
+		}
+
 	@Override
 	public void insert(T e, K k){
 		if(raiz == null){ // Arbol vacío
 			raiz = new AVLNode(e, k, null);
 			return;
 		}
-		AVLNode v = insert(e, k, raiz);
 
-		// Rebalancear a partir de v hasta raiz
-		//rebalancea(v);
+		AVLNode v = insert(e, k, raiz);
+		v.actualizaAltura();
+		if(k.compareTo(raiz.clave)<0){
+			if(altura(v.izquierdo)- altura(v.derecho) == 2)
+				if(k.compareTo(v.izquierdo.clave)<0){
+					v = rotacionIzquierda(v);
+				}else{
+					v = rotacionDobleIzq(v);
+					
+				}
+		}else{
+		if(altura(v.izquierdo)- altura(v.derecho) == 2)
+			if(k.compareTo(v.derecho.clave)>0){
+				v = rotacionDerecha(v);
+				}else{
+					v = rotacionDobleDer(v);
+				}
+		}
+		v.altura = max(altura(v.izquierdo), altura(v.derecho)) +1;
 	}
 
 	/**
@@ -125,17 +213,38 @@ public class AVLTree<K extends Comparable, T> implements TDABinarySearchTree<K, 
 			if(actual.izquierdo == null){ // Insertamos en esa posición
 				actual.izquierdo = new AVLNode(e, k, actual);
 				return actual.izquierdo;
-			} else { // Recursión sobre el izquierdo
+			} else  if(actual.izquierdo!=null){ // Recursión sobre el izquierdo
 				return insert(e, k, actual.izquierdo);
 			}
-		} else{ // Verificamos sobre la derecha
+			/*if(altura(actual.izquierdo)- altura(actual.derecho) == 2)
+				if(k.compareTo(actual.izquierdo.clave)<0){
+					actual = rotacionIzquierda(actual);
+				}else{
+					actual = rotacionDobleIzq(actual);
+					
+				}*/
+		
+		}else{ // Verificamos sobre la derecha
 			if(actual.derecho == null){ // Insertamos en esa posición
 				actual.derecho = new AVLNode(e, k, actual);
 				return actual.derecho;
-			} else { // Recursión sobre el derecho
+			} else if( actual.derecho !=null) { // Recursión sobre el derecho
 				return insert(e, k, actual.derecho);
 			}
+			/*if(altura(actual.izquierdo)- altura(actual.derecho) == 2)
+				if(k.compareTo(actual.izquierdo.clave)<0){
+					actual = rotacionDerecha(actual);
+				}else{
+					actual = rotacionDobleDer(actual);
+				}*/
+		
 		}
+	//	actual.altura = max(altura(actual.izquierdo), altura(actual.derecho)) +1;
+		return actual;
+	}
+
+	private static int max(int lhs, int rhs){
+		return lhs > rhs ? lhs : rhs;
 	}
 
 	@Override
@@ -151,9 +260,6 @@ public class AVLTree<K extends Comparable, T> implements TDABinarySearchTree<K, 
 
 		// Eliminar con auxiliar
 		AVLNode w = delete(v);
-
-		// Rebalancear
-		//rebalancea(w);
 
 		return eliminado;
 	}
@@ -215,6 +321,18 @@ public class AVLTree<K extends Comparable, T> implements TDABinarySearchTree<K, 
 		return null;
 	}
 
+	private AVLNode findMax(AVLNode actual){
+		if(actual == null)
+			return null;
+		AVLNode iterador = actual;
+
+		while(iterador.derecho != null){
+			iterador = actual.derecho;
+		}
+
+		return iterador;
+	}
+
 	@Override
 	public void preorden(){
 		preorden(raiz);
@@ -230,29 +348,108 @@ public class AVLTree<K extends Comparable, T> implements TDABinarySearchTree<K, 
 	}
 
 	@Override
-	public void inorden(){}
+	public void inorden(){
+		inorden(raiz);
+	}
+
+	private void inorden(AVLNode actual){
+		if(actual==null)
+		return;
+
+		inorden(actual.izquierdo);
+		System.out.println(actual.elemento);
+		inorden(actual.derecho);
+	}
 
 	@Override
-	public void postorden(){}
+	public void postorden(){
+		postorden(raiz);
+	}
+
+	private void postorden(AVLNode actual){
+		if(actual== null)
+		return;
+
+		postorden(actual.izquierdo);
+		postorden(actual.derecho);
+		System.out.println(actual.elemento);
+	}
 
 	public static void main(String[] args) {
-		AVLTree<Integer, Integer> arbol = new AVLTree<>();
+		Scanner sc = new Scanner(System.in);
+		AVLTree<Integer, String> arbol = new AVLTree<>();
+		do{
+			System.out.println("[1]Obtener la altura\n"+
+			"[1] Inserta un nodo\n"+
+			"[2] Elimina\n"+
+			"[3] Recupera objeto\n"+
+			"[4] FindMin\n"+
+			"[5] FindMax\n"+
+			"[6] Preorden\n"+
+			"[7] Inorden\n"+
+			"[8] Postorden\n"+
+			"[9] Salir\n"+
+			"Elige una opción: ");
 
-		arbol.insert(9, 9);
-		arbol.insert(12, 12);
-		arbol.insert(3, 3);
-		arbol.insert(4, 4);
-		arbol.insert(2, 2);
-		arbol.insert(5, 5);
-		arbol.insert(1, 1);
-		arbol.insert(11, 11);
-		arbol.insert(14, 14);
-		arbol.insert(15, 15);
+			int opcion = sc.nextInt();
+			switch(opcion){
+				/**Inserta un elemento */
+				case 1:
+					System.out.println("Digite la clave a agregar");
+					int clave = sc.nextInt();
+					sc.nextLine();
+					
+					System.out.println("Digite el elemento a agregar");
+					String e = sc.nextLine();
+					arbol.insert(e, clave);
+					break;
+				/**Elimina un elemento */
+				case 2:
+					System.out.println("Digite la clave del elemento a eliminar");
+					int aeliminar = sc.nextInt();
+					sc.nextLine();
+					System.out.println("Se elimino el elemento : "+arbol.delete(aeliminar));
+					break;
+				/** Recupera elemento */
+				case 3:
+					System.out.println("Digite la clave del elemento a buscar");
+					int dat = sc.nextInt();
+					sc.nextLine();
+					System.out.println(arbol.retrieve(dat));
+					break;
+				/** FindMin */
+				case 4:
+					System.out.println(arbol.findMin());
+					break;
+				/** FindMax */
+				case 5:
+					System.out.println(arbol.findMax());
+					break;
+				/** Preorden */
+				case 6:
+					System.out.println("\n Recorrido en Preorden");
+					arbol.preorden();
+					System.out.println("\n");
+					break;
+				/** Inorden */
+				case 7:
+				System.out.println("\n Recorrido en Inorden");
+					arbol.inorden();
+					System.out.println("\n");
+					break;
+				/** Postorden */
+				case 8:
+				System.out.println("\n Recorrido en Postorden");
+					arbol.postorden();
+					System.out.println("\n");
+					break;
+				case 9:
+					return;
+				default:
+					System.out.println("Opción inválida");
+					
+			}
+		}while(true);
 
-		arbol.delete(9);
-		arbol.delete(12);
-		arbol.delete(5);
-
-		arbol.preorden();
 	}
 }
